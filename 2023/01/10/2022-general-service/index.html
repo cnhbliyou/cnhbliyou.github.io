@@ -28,7 +28,7 @@
 <meta property="og:description" content="2022 年通用服务比赛总结及技术文档比赛总结比赛规则下载1http:&#x2F;&#x2F;crc.drct-caa.org.cn&#x2F;static&#x2F;kindeditor&#x2F;attached&#x2F;file&#x2F;20220812&#x2F;20220812035236_67898.rar 整个比赛流程  首先每年八月份左右公布规则，然后十月左右结束报名，报名时要把资格认证文档发给组委会邮箱（注意：自己发过去，队里不会帮你发）。   十一月底">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-01-10T05:30:42.000Z">
-<meta property="article:modified_time" content="2023-01-10T05:44:11.858Z">
+<meta property="article:modified_time" content="2023-03-01T07:42:05.654Z">
 <meta property="article:author" content="riyuu">
 <meta property="article:tag" content="总结">
 <meta property="article:tag" content="技术文档">
@@ -179,10 +179,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2023-01-10 13:30:42 / 修改时间：13:44:11" itemprop="dateCreated datePublished" datetime="2023-01-10T13:30:42+08:00">2023-01-10</time>
+              <time title="创建时间：2023-01-10 13:30:42" itemprop="dateCreated datePublished" datetime="2023-01-10T13:30:42+08:00">2023-01-10</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-03-01 15:42:05" itemprop="dateModified" datetime="2023-03-01T15:42:05+08:00">2023-03-01</time>
+              </span>
 
           
 
@@ -227,6 +233,25 @@
 <li>整个项目使用 ROS1 编写, 历史遗留问题比较多, 而且没有测试模块, 导致后期测试模块非常麻烦, 建议每个任务都应该配备相应的测试模块, 以方便测试.</li>
 <li>模型训练整体非常平稳, 使用 4000 余张 jpg 进行训练, 具体 pt 文件找往届队员（ qq 联系方式：1269406319 ）。模型效果非常好. 几乎每届比赛都不会改物品清单, 如果没变化,直接用往届的就行.</li>
 <li>往届代码都会附带注释, 比较详细.</li>
+</ul>
+<h2 id="附加说明"><a href="#附加说明" class="headerlink" title="附加说明"></a>附加说明</h2><h3 id="关于-insightface-人脸识别"><a href="#关于-insightface-人脸识别" class="headerlink" title="关于 insightface 人脸识别"></a>关于 insightface 人脸识别</h3><p>使用 insightface 的节点为 test_face 节点，在general_service 包里的 test_face.py 文件里实现。</p>
+<p>其实主要就是导入库，注册人脸和分类人脸三步。但是这三步所需要输入的图片必须只包含一个人脸，如果没人脸或者多于一个就会报错，所以我们采用选取多个人脸中的最大图片，再输入 insightface 。</p>
+<p>register 函数做的是注册人脸的工作，直接调用就行。但是需要注意的一点就是人脸不能重复，当注册已经注册过的人脸时，就会报错，等待新的人脸注册。</p>
+<p>recognition 函数做的时是分类工作，输入人脸图，输出注册过的人名。但是需要注意的是，如果输入的人脸没注册过，就会报错输出。</p>
+<h3 id="关于-mediapipe-姿态检测"><a href="#关于-mediapipe-姿态检测" class="headerlink" title="关于 mediapipe 姿态检测"></a>关于 mediapipe 姿态检测</h3><p>也分为三部分：导入库，检测出人的特征点框架，计算相对朝向角度。</p>
+<p>整个实现代码都在 test_human_detection.py 文件里。</p>
+<p>mediapipe_detection 函数是输入图片，输出识别到的特征点框架。需要注意的是，我们再使用前用yolo对图片中的人框一个一个进行 mediapipe_detection ，因为它一次只能识别一个特征点框架。返回的 results 即识别结果，具体包含哪些特征点和信息都需要在官网查看。但是可以肯定的是，只截取图片中人的部分的图片输入函数的正确率远高于将图片中除人部分的颜色通道全置为0（即全部涂黑）高。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">https</span>:<span class="comment">//google.github.io/mediapipe/solutions/pose.html</span></span><br></pre></td></tr></table></figure>
+
+<p>关于姿态角度计算，参考文件内的算法实现，这个算法可以计算得比较准确。</p>
+<h3 id="关于-slam-的建图使用"><a href="#关于-slam-的建图使用" class="headerlink" title="关于 slam 的建图使用"></a>关于 slam 的建图使用</h3><p>参考队里启智 ROS 机器人开发手册的第三十页和第五十九页。我们都是按照里面的教程进行地图相关工作。</p>
+<p>值得注意的问题：</p>
+<ul>
+<li>这个教程建出来的图我个人感觉有偏差，因为之后总是偏离路线</li>
+<li>机器人的初始点得自己设定，需要建图的初始点和当前初始点以及一个参照点进行设定。因为地图启动时，我们机器人在地图上的位置总会偏离固定距离，我们需要自己调好地图文件。</li>
+<li>机器人可以在两个门进场，所以需要在命令行启动 launch 文件时就指定当前在哪个门，这个我们在launch文件里已经实现。</li>
+<li>参照点的精确性需要重视！！！我们打航点花了近8个小时，最后精确性不怎么样，导致最后机器人卡死在地图墙里，这个得花时间慢慢调。</li>
+<li>如果还有其他问题，欢迎找我们联系。</li>
 </ul>
 
     </div>
@@ -319,7 +344,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#2022-%E5%B9%B4%E9%80%9A%E7%94%A8%E6%9C%8D%E5%8A%A1%E6%AF%94%E8%B5%9B%E6%80%BB%E7%BB%93%E5%8F%8A%E6%8A%80%E6%9C%AF%E6%96%87%E6%A1%A3"><span class="nav-number">1.</span> <span class="nav-text">2022 年通用服务比赛总结及技术文档</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AF%94%E8%B5%9B%E6%80%BB%E7%BB%93"><span class="nav-number">1.1.</span> <span class="nav-text">比赛总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AF%94%E8%B5%9B%E8%A7%84%E5%88%99%E4%B8%8B%E8%BD%BD"><span class="nav-number">1.1.1.</span> <span class="nav-text">比赛规则下载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B4%E4%B8%AA%E6%AF%94%E8%B5%9B%E6%B5%81%E7%A8%8B"><span class="nav-number">1.1.2.</span> <span class="nav-text">整个比赛流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E6%96%87%E6%A1%A3"><span class="nav-number">1.2.</span> <span class="nav-text">技术文档</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9B%AE%E6%A0%87"><span class="nav-number">1.2.1.</span> <span class="nav-text">机器人目标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A1%AC%E4%BB%B6%E5%92%8C%E8%BD%AF%E4%BB%B6%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.2.2.</span> <span class="nav-text">机器人的硬件和软件设计</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">软件设计</span></a></li></ol></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#2022-%E5%B9%B4%E9%80%9A%E7%94%A8%E6%9C%8D%E5%8A%A1%E6%AF%94%E8%B5%9B%E6%80%BB%E7%BB%93%E5%8F%8A%E6%8A%80%E6%9C%AF%E6%96%87%E6%A1%A3"><span class="nav-number">1.</span> <span class="nav-text">2022 年通用服务比赛总结及技术文档</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AF%94%E8%B5%9B%E6%80%BB%E7%BB%93"><span class="nav-number">1.1.</span> <span class="nav-text">比赛总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AF%94%E8%B5%9B%E8%A7%84%E5%88%99%E4%B8%8B%E8%BD%BD"><span class="nav-number">1.1.1.</span> <span class="nav-text">比赛规则下载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B4%E4%B8%AA%E6%AF%94%E8%B5%9B%E6%B5%81%E7%A8%8B"><span class="nav-number">1.1.2.</span> <span class="nav-text">整个比赛流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E6%96%87%E6%A1%A3"><span class="nav-number">1.2.</span> <span class="nav-text">技术文档</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9B%AE%E6%A0%87"><span class="nav-number">1.2.1.</span> <span class="nav-text">机器人目标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A1%AC%E4%BB%B6%E5%92%8C%E8%BD%AF%E4%BB%B6%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.2.2.</span> <span class="nav-text">机器人的硬件和软件设计</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">软件设计</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%99%84%E5%8A%A0%E8%AF%B4%E6%98%8E"><span class="nav-number">1.3.</span> <span class="nav-text">附加说明</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E-insightface-%E4%BA%BA%E8%84%B8%E8%AF%86%E5%88%AB"><span class="nav-number">1.3.1.</span> <span class="nav-text">关于 insightface 人脸识别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E-mediapipe-%E5%A7%BF%E6%80%81%E6%A3%80%E6%B5%8B"><span class="nav-number">1.3.2.</span> <span class="nav-text">关于 mediapipe 姿态检测</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E-slam-%E7%9A%84%E5%BB%BA%E5%9B%BE%E4%BD%BF%E7%94%A8"><span class="nav-number">1.3.3.</span> <span class="nav-text">关于 slam 的建图使用</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
