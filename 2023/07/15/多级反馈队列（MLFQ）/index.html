@@ -20,28 +20,36 @@
     var CONFIG = {"hostname":"cnhbliyou.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="riyuu 的个人博客">
-<meta property="og:url" content="http://cnhbliyou.github.io/index.html">
+  <meta name="description" content="多级反馈队列是一种操作系统对进程的调度策略 为了解决两个问题：  优化周转时间，先执行短工作 降低响应时间，很好的交互体验  遇到的问题：通常我们对进程一无所知，应该如 何构建调度程序来实现这些目标？调度程序如何在运行过程中学习进程的特征，从而做出更好的调度决策？ 两条基本规则有许多独立的队列（queue），每个队列有不同的优先级（priority level）任何时刻，一个工作只能存在于一个队列">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多级反馈队列（MLFQ）">
+<meta property="og:url" content="http://cnhbliyou.github.io/2023/07/15/%E5%A4%9A%E7%BA%A7%E5%8F%8D%E9%A6%88%E9%98%9F%E5%88%97%EF%BC%88MLFQ%EF%BC%89/index.html">
 <meta property="og:site_name" content="riyuu 的个人博客">
+<meta property="og:description" content="多级反馈队列是一种操作系统对进程的调度策略 为了解决两个问题：  优化周转时间，先执行短工作 降低响应时间，很好的交互体验  遇到的问题：通常我们对进程一无所知，应该如 何构建调度程序来实现这些目标？调度程序如何在运行过程中学习进程的特征，从而做出更好的调度决策？ 两条基本规则有许多独立的队列（queue），每个队列有不同的优先级（priority level）任何时刻，一个工作只能存在于一个队列">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://cnhbliyou.github.io/2023/07/15/%E5%A4%9A%E7%BA%A7%E5%8F%8D%E9%A6%88%E9%98%9F%E5%88%97%EF%BC%88MLFQ%EF%BC%89/1.png">
+<meta property="og:image" content="http://cnhbliyou.github.io/2023/07/15/%E5%A4%9A%E7%BA%A7%E5%8F%8D%E9%A6%88%E9%98%9F%E5%88%97%EF%BC%88MLFQ%EF%BC%89/2.png">
+<meta property="article:published_time" content="2023-07-15T13:54:01.000Z">
+<meta property="article:modified_time" content="2023-07-15T14:39:21.290Z">
 <meta property="article:author" content="riyuu">
+<meta property="article:tag" content="操作系统">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://cnhbliyou.github.io/2023/07/15/%E5%A4%9A%E7%BA%A7%E5%8F%8D%E9%A6%88%E9%98%9F%E5%88%97%EF%BC%88MLFQ%EF%BC%89/1.png">
 
-<link rel="canonical" href="http://cnhbliyou.github.io/">
+<link rel="canonical" href="http://cnhbliyou.github.io/2023/07/15/%E5%A4%9A%E7%BA%A7%E5%8F%8D%E9%A6%88%E9%98%9F%E5%88%97%EF%BC%88MLFQ%EF%BC%89/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : true,
-    isPost : false,
+    isHome : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>riyuu 的个人博客</title>
+  <title>多级反馈队列（MLFQ） | riyuu 的个人博客</title>
   
 
 
@@ -144,9 +152,10 @@
         <div class="content-wrap">
           
 
-          <div class="content index posts-expand">
+          <div class="content post posts-expand">
             
-      
+
+    
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
@@ -162,10 +171,9 @@
       <meta itemprop="name" content="riyuu 的个人博客">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/07/15/%E5%A4%9A%E7%BA%A7%E5%8F%8D%E9%A6%88%E9%98%9F%E5%88%97%EF%BC%88MLFQ%EF%BC%89/" class="post-title-link" itemprop="url">多级反馈队列（MLFQ）</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          多级反馈队列（MLFQ）
+        </h1>
 
         <div class="post-meta">
             <span class="post-meta-item">
@@ -189,7 +197,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>多级反馈队列是一种操作系统对进程的调度策略</p>
+        <p>多级反馈队列是一种操作系统对进程的调度策略</p>
 <p>为了解决两个问题：</p>
 <ul>
 <li>优化周转时间，先执行短工作</li>
@@ -234,137 +242,50 @@
 <p>大多数的 MLFQ 变体都支持不同队列可变的时间片长度。高优先级队列通常只有较短的时间片（比如 10ms 或者更少），因而这一层的交互工作可以更快地切换<br>相反，低优先级队列中更多的是 CPU 密集型工作，配置更长的时间片会取得更好的效果</p>
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>有多级队列，并利用反馈信息决定某个工作的优先级。以史为鉴：关注进程的一贯表现，然后区别对待<br>不需要对工作的运行方式有先验知识，而是通过观察工作的运行来给出对应的优先级</p>
 
-      
     </div>
 
     
     
     
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>riyuu
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://cnhbliyou.github.io/2023/07/15/%E5%A4%9A%E7%BA%A7%E5%8F%8D%E9%A6%88%E9%98%9F%E5%88%97%EF%BC%88MLFQ%EF%BC%89/" title="多级反馈队列（MLFQ）">http://cnhbliyou.github.io/2023/07/15/多级反馈队列（MLFQ）/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
+          <div class="post-tags">
+              <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag"># 操作系统</a>
+          </div>
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://cnhbliyou.github.io/2023/01/10/2022-general-service/">
+        
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="riyuu">
-      <meta itemprop="description" content="">
-    </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="riyuu 的个人博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/01/10/2022-general-service/" class="post-title-link" itemprop="url">2022 年通用服务机器人比赛总结和技术文档</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-01-10 13:30:42" itemprop="dateCreated datePublished" datetime="2023-01-10T13:30:42+08:00">2023-01-10</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-03-01 15:46:25" itemprop="dateModified" datetime="2023-03-01T15:46:25+08:00">2023-03-01</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="2022-年通用服务比赛总结及技术文档"><a href="#2022-年通用服务比赛总结及技术文档" class="headerlink" title="2022 年通用服务比赛总结及技术文档"></a>2022 年通用服务比赛总结及技术文档</h1><h2 id="比赛总结"><a href="#比赛总结" class="headerlink" title="比赛总结"></a>比赛总结</h2><h3 id="比赛规则下载"><a href="#比赛规则下载" class="headerlink" title="比赛规则下载"></a>比赛规则下载</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">http</span>:<span class="comment">//crc.drct-caa.org.cn/static/kindeditor/attached/file/20220812/20220812035236_67898.rar</span></span><br></pre></td></tr></table></figure>
-<h3 id="整个比赛流程"><a href="#整个比赛流程" class="headerlink" title="整个比赛流程"></a>整个比赛流程</h3><p>  首先每年八月份左右公布规则，然后十月左右结束报名，报名时要把资格认证文档发给组委会邮箱（注意：自己发过去，队里不会帮你发）。</p>
-<p>  十一月底开始为期一天的正式比赛，上午第一轮，下午第二轮，比完赛可以当天知道成绩和奖项。</p>
-<p>  比赛赛程分两轮，第一轮是全部参赛队伍参加，第二轮是自主报名，主要是对自己第一轮比赛成绩不满意的队伍报名参加。但是报名第二轮的话，第一轮成绩会作废。</p>
-<p>  2022 年的比赛大概是 7 月份开始准备，然后 9 月份开始投入比赛准备。</p>
-<p>  比赛前两天完成了模型训练</p>
-<p>  最终比赛结果是第一轮比赛 110 分，第二轮比赛 0 分。</p>
-<p>  第一轮比赛失败原因是：机器人在找人过程中，把一个志愿者当成了两个，导致在采集完第二个志愿者信息后，主程序一直没有收到人脸采集程序的成功信号（因为当前人的信息已经被采集过了，程序会重复进行采集直到成功），程序死机。最终得分包括进场 10 分、找到两个人 60 分、语音交互两个人 40 分。</p>
-<p>  第二轮比赛失败原因是：机器人在进场后前往客人房间导航过程中，原本是可通行区域的区域在实际场地中变成了墙体的碰撞区域（原因是最后一次调试后可能墙体被移动了），导致机器人在导航过程中局部路径不可通行，直接原地宕机，直到比赛结束。最终进场的 cmd 点经裁判测量也不符合规则。最终得分 0 分。</p>
-<p>  教训：</p>
-<ul>
-<li>比赛场地在建完地图后不能再动了。</li>
-<li>程序应该具有充分的错误处理函数，和完备的测试程序。</li>
-<li>尽量保证有两台以上笔记本可以运行比赛程序，不然一个人在调，另一个人只能等。</li>
-<li>组委会在上午的比赛中就明确说明西安交通大学每年都 p 事多，所以看我们很不爽，而且在实际比赛中，主裁判也不按发布的规则主持比赛，导致比赛过程中争吵不断。所以我们只能从自己做起，弄好自己能弄的，不然那个主裁判挑刺会导致额外失分。</li>
-<li>整个比赛测试流程应该从最开始的模块开始测试，而不是从最重要的模块开始。比如这次比赛，我们先把地图建完，打好航点之后，就先进行了抓取的测试，到我开始测试进场前后的模块时，时间已经来到了早上6点，离比赛开始仅有4个小时。最后比赛证明，出问题的模块几乎都在抓取前面，花费大量心思写完的抓取模块一次都没用到就输了。</li>
-</ul>
-<h2 id="技术文档"><a href="#技术文档" class="headerlink" title="技术文档"></a>技术文档</h2><p>以下是我们 2022 年的代码仓库地址：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">https</span>:<span class="comment">//github.com/XJTU-RoboCup-Club/general_service_2022.git</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="机器人目标"><a href="#机器人目标" class="headerlink" title="机器人目标"></a>机器人目标</h3><p>  我们将比赛要求的每个机器人任务抽象成一个状态，机器人在状态之间进行跳跃，根据状态来执行相应任务，完成比赛目标。具体比赛目标集合见比赛规则。</p>
-<p>  注意：发布的比赛规则在后续还会有持续的变化，基本不同裁判对比赛规则也会有不同理解，我们这次就碰到了一个不怎么友好的裁判，一开始就说我们顶撞裁判，然后自顾自地推进他自己的一套比赛流程。</p>
-<h3 id="机器人的硬件和软件设计"><a href="#机器人的硬件和软件设计" class="headerlink" title="机器人的硬件和软件设计"></a>机器人的硬件和软件设计</h3><p>  机器人的硬件详细参数见队里的那本说明书</p>
-<h4 id="软件设计"><a href="#软件设计" class="headerlink" title="软件设计"></a>软件设计</h4><ul>
-<li>主函数。为 main_service.cpp，主要负责状态的切换和不同节点之间通信的管理，我们自己编写的所有节点都受它控制。</li>
-<li>test_face_detection.py，主要负责在走到人面前进行人脸信息的采集，和抓取物品回来之后寻找客人（根据之前的人脸信息对不同客人进行分辨）。使用insight_face 框架，具体使用可以参考官方文档。compreface 经过一定测试发现会占用一个端口号，与 ros 节点端口冲突，导致无法使用，当时我们没有找到解决办法，换成了 insight_face。</li>
-<li>test_human_detection.py，主要负责在房间内寻找客人，计算客人面前的地图坐标，然后传回主函数。存在着很多问题：重影问题（有几率会将一个人识别成两个，目前无解决办法，而且一旦出问题，机器人就会卡死，因为它发现当前人在之前就出现过，会判定没找到人脸，然后出发重复判断），找不到人（性能瓶颈，转太快了导致人一闪而过），等等。主要使用 yolo 获取人的 box ，然后推进 mediapipe 里，获取人的关键点，根据几何关系计算人前坐标，发送。</li>
-<li>抓取和语音都是集成度高的模块，已经可以满足使用，直接复制粘贴即可。如果有问题，咨询我们（ qq 联系方式：1269406319 ）。</li>
-<li>其他模块都比较简单，具体可以看 general_service.launch 里面最后启动的几个节点，就是我们用到的。</li>
-<li>整个项目使用 ROS1 编写, 历史遗留问题比较多, 而且没有测试模块, 导致后期测试模块非常麻烦, 建议每个任务都应该配备相应的测试模块, 以方便测试.</li>
-<li>模型训练整体非常平稳, 使用 4000 余张 jpg 进行训练, 具体 pt 文件找往届队员（ qq 联系方式：1269406319 ）。模型效果非常好. 几乎每届比赛都不会改物品清单, 如果没变化,直接用往届的就行.</li>
-<li>往届代码都会附带注释, 比较详细.</li>
-</ul>
-<h2 id="附加说明"><a href="#附加说明" class="headerlink" title="附加说明"></a>附加说明</h2><h3 id="关于-insightface-人脸识别"><a href="#关于-insightface-人脸识别" class="headerlink" title="关于 insightface 人脸识别"></a>关于 insightface 人脸识别</h3><p>使用 insightface 的节点为 test_face 节点，在general_service 包里的 test_face.py 文件里实现。</p>
-<p>其实主要就是导入库，注册人脸和分类人脸三步。但是这三步所需要输入的图片必须只包含一个人脸，如果没人脸或者多于一个就会报错，所以我们采用选取多个人脸中的最大图片，再输入 insightface 。</p>
-<p>register 函数做的是注册人脸的工作，直接调用就行。但是需要注意的一点就是人脸不能重复，当注册已经注册过的人脸时，就会报错，等待新的人脸注册。</p>
-<p>recognition 函数做的时是分类工作，输入人脸图，输出注册过的人名。但是需要注意的是，如果输入的人脸没注册过，就会报错输出。</p>
-<h3 id="关于-mediapipe-姿态检测"><a href="#关于-mediapipe-姿态检测" class="headerlink" title="关于 mediapipe 姿态检测"></a>关于 mediapipe 姿态检测</h3><p>也分为三部分：导入库，检测出人的特征点框架，计算相对朝向角度。</p>
-<p>整个实现代码都在 test_human_detection.py 文件里。</p>
-<p>mediapipe_detection 函数是输入图片，输出识别到的特征点框架。需要注意的是，我们再使用前用yolo对图片中的人框一个一个进行 mediapipe_detection ，因为它一次只能识别一个特征点框架。返回的 results 即识别结果，具体包含哪些特征点和信息都需要在官网查看。但是可以肯定的是，只截取图片中人的部分的图片输入函数的正确率远高于将图片中除人部分的颜色通道全置为0（即全部涂黑）高。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">https</span>:<span class="comment">//google.github.io/mediapipe/solutions/pose.html</span></span><br></pre></td></tr></table></figure>
-
-<p>关于姿态角度计算，参考文件内的算法实现，这个算法可以计算得比较准确。</p>
-<h3 id="关于-slam-的建图使用"><a href="#关于-slam-的建图使用" class="headerlink" title="关于 slam 的建图使用"></a>关于 slam 的建图使用</h3><p>参考队里启智 ROS 机器人开发手册的第三十页和第五十九页。我们都是按照里面的教程进行地图相关工作。</p>
-<p>值得注意的问题：</p>
-<ul>
-<li>这个教程建出来的图我个人感觉有偏差，因为之后总是偏离路线</li>
-<li>机器人的初始点得自己设定，需要建图的初始点和当前初始点以及一个参照点进行设定。因为地图启动时，我们机器人在地图上的位置总会偏离固定距离，我们需要自己调好地图文件。</li>
-<li>机器人可以在两个门进场，所以需要在命令行启动 launch 文件时就指定当前在哪个门，这个我们在launch文件里已经实现。</li>
-<li>参照点的精确性需要重视！！！我们打航点花了近8个小时，最后精确性不怎么样，导致最后机器人卡死在地图墙里，这个得花时间慢慢调。这个与 slam 相关的 move_base 包必须有人会用，得改下 move_base 的东西。比如去年需要一个功能：在导航时如果一段时间没到这个点，就跳过这个点去下一个点，但是没人知道怎么写，造成了很大问题。</li>
-<li>如果还有其他问题，欢迎找我们联系。</li>
-</ul>
-
-      
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/01/10/2022-general-service/" rel="prev" title="2022 年通用服务机器人比赛总结和技术文档">
+      <i class="fa fa-chevron-left"></i> 2022 年通用服务机器人比赛总结和技术文档
+    </a></div>
+      <div class="post-nav-item"></div>
     </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
       </footer>
+    
   </article>
   
   
-  
-
-
   
 
 
@@ -417,6 +338,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%A4%E6%9D%A1%E5%9F%BA%E6%9C%AC%E8%A7%84%E5%88%99"><span class="nav-number">1.</span> <span class="nav-text">两条基本规则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%9D%E8%AF%951%EF%BC%9A%E5%A6%82%E4%BD%95%E6%94%B9%E5%8F%98%E4%BC%98%E5%85%88%E7%BA%A7"><span class="nav-number">2.</span> <span class="nav-text">尝试1：如何改变优先级</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%9D%E8%AF%952%EF%BC%9A%E6%8F%90%E5%8D%87%E4%BC%98%E5%85%88%E7%BA%A7"><span class="nav-number">3.</span> <span class="nav-text">尝试2：提升优先级</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%9D%E8%AF%953%EF%BC%9A%E6%9B%B4%E5%A5%BD%E7%9A%84%E8%AE%A1%E6%97%B6%E6%96%B9%E5%BC%8F"><span class="nav-number">4.</span> <span class="nav-text">尝试3：更好的计时方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MLFQ%E8%B0%83%E4%BC%98%E5%92%8C%E5%85%B6%E4%BB%96%E9%97%AE%E9%A2%98"><span class="nav-number">5.</span> <span class="nav-text">MLFQ调优和其他问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">小结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
